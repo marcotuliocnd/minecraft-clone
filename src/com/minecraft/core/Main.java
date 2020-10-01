@@ -19,16 +19,18 @@ public class Main {
 	
 	public void start() {
 		float[] vertices = {
-				-0.5f, 0.5f, 0f,
-				-0.5f, -0.5f, 0f,
-				0.5f, -0.5f, 0f,
-
-				0.5f, -0.5f, 0f,
-				0.5f, 0.5f, 0f,
-				-0.5f, 0.5f, 0f,
+				-0.5f, 0.5f, 0f,	// vertice 0
+				-0.5f, -0.5f, 0f,	// vertice 1
+				0.5f, -0.5f, 0f,	// vertice 2
+				0.5f, 0.5f, 0f		// vertice 3
 		};
 		
-		this.rawModel = loader.loadToVao(vertices);
+		int[] indices = {
+				0, 1, 3, // top triangle (vertice 0, vertice 1, vertice 3)
+				3, 1, 2	 // bottom triangle (vertice 3, vertice 1, vertice 2)
+		};
+		
+		this.rawModel = loader.loadToVao(vertices, indices);
 		
 		this.run();
 	}
