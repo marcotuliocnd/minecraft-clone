@@ -11,7 +11,7 @@ public class DisplayManager {
 	
 	private static final int WIDTH = 1280;
 	private static final int HEIGHT = 720;
-	private static final int MAX_FPS = 60;
+	public static final int MAX_FPS = 60;
 	
 	public static void create() {
 		ContextAttribs contextAttributes = new ContextAttribs(3,2);
