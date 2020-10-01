@@ -2,6 +2,8 @@ package com.minecraft.core;
 
 import org.lwjgl.opengl.Display;
 
+import com.minecraft.shaders.StaticShader;
+
 public class Main {
 	
 	public static int framesPerSecond = 0;
@@ -9,12 +11,14 @@ public class Main {
 	private Loader loader;
 	private Renderer renderer;
 	private RawModel rawModel;
+	private StaticShader staticShader;
 	
 	public Main() {
 		DisplayManager.create();
 		
 		this.loader = new Loader();
 		this.renderer = new Renderer();
+		this.staticShader = new StaticShader();
 	}
 	
 	public void start() {
@@ -47,7 +51,9 @@ public class Main {
 	public void render() {
 		this.renderer.prepare();
 
+		this.staticShader.start();
 		this.renderer.render(rawModel);
+		this.staticShader.stop();
 		
 		DisplayManager.update();
 	}
@@ -75,6 +81,8 @@ public class Main {
 			}
 		}
 		
+		
+		this.staticShader.cleanUp();
 		this.loader.cleanUp();
 		DisplayManager.close();
 	}
