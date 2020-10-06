@@ -14,9 +14,9 @@ public class DisplayManager {
 	public static final int MAX_FPS = 60;
 	
 	public static void create() {
-		ContextAttribs contextAttributes = new ContextAttribs(3,2);
-		contextAttributes.withForwardCompatible(true);
-		contextAttributes.withProfileCore(true);
+		ContextAttribs contextAttributes = new ContextAttribs(3,2)
+		.withForwardCompatible(true)
+		.withProfileCore(true);
 		
 		try {
 			Display.setDisplayMode(new DisplayMode(WIDTH, HEIGHT));
