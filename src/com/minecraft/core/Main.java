@@ -1,7 +1,10 @@
 package com.minecraft.core;
 
 import org.lwjgl.opengl.Display;
+import org.lwjgl.util.vector.Vector3f;
 
+import com.minecraft.entities.Camera;
+import com.minecraft.entities.Entity;
 import com.minecraft.models.RawModel;
 import com.minecraft.models.TexturedModel;
 import com.minecraft.shaders.StaticShader;
@@ -16,16 +19,19 @@ public class Main {
 	private RawModel rawModel;
 	private StaticShader staticShader;
 	private TexturedModel texturedModel;
+	private Entity entity;
+	private Camera camera = new Camera();
 	
 	public Main() {
 		DisplayManager.create();
 		
 		this.loader = new Loader();
-		this.renderer = new Renderer();
 		this.staticShader = new StaticShader();
+		this.renderer = new Renderer(this.staticShader);
 	}
 	
 	public void start() {
+		/*
 		float[] vertices = {
 				-0.5f, 0.5f, 0f,	// vertice 0
 				-0.5f, -0.5f, 0f,	// vertice 1
@@ -44,11 +50,93 @@ public class Main {
 				1,1,				//Vertice 2
 				1,0 				//Vertice 3
 		};
+		*/
+		float[] vertices = {			
+				-0.5f,0.5f,-0.5f,	
+				-0.5f,-0.5f,-0.5f,	
+				0.5f,-0.5f,-0.5f,	
+				0.5f,0.5f,-0.5f,		
+				
+				-0.5f,0.5f,0.5f,	
+				-0.5f,-0.5f,0.5f,	
+				0.5f,-0.5f,0.5f,	
+				0.5f,0.5f,0.5f,
+				
+				0.5f,0.5f,-0.5f,	
+				0.5f,-0.5f,-0.5f,	
+				0.5f,-0.5f,0.5f,	
+				0.5f,0.5f,0.5f,
+				
+				-0.5f,0.5f,-0.5f,	
+				-0.5f,-0.5f,-0.5f,	
+				-0.5f,-0.5f,0.5f,	
+				-0.5f,0.5f,0.5f,
+				
+				-0.5f,0.5f,0.5f,
+				-0.5f,0.5f,-0.5f,
+				0.5f,0.5f,-0.5f,
+				0.5f,0.5f,0.5f,
+				
+				-0.5f,-0.5f,0.5f,
+				-0.5f,-0.5f,-0.5f,
+				0.5f,-0.5f,-0.5f,
+				0.5f,-0.5f,0.5f
+				
+		};
 		
+		float[] textureCoordinates = {
+				
+				0,0,
+				0,1,
+				1,1,
+				1,0,			
+				0,0,
+				0,1,
+				1,1,
+				1,0,			
+				0,0,
+				0,1,
+				1,1,
+				1,0,
+				0,0,
+				0,1,
+				1,1,
+				1,0,
+				0,0,
+				0,1,
+				1,1,
+				1,0,
+				0,0,
+				0,1,
+				1,1,
+				1,0
+
+				
+		};
+		
+		int[] indices = {
+				0,1,3,	
+				3,1,2,	
+				4,5,7,
+				7,5,6,
+				8,9,11,
+				11,9,10,
+				12,13,15,
+				15,13,14,	
+				16,17,19,
+				19,17,18,
+				20,21,23,
+				23,21,22
+
+		};
 		
 		this.rawModel = loader.loadToVao(vertices, indices, textureCoordinates);
 		ModelTexture texture = new ModelTexture(loader.loadTexture("grass.png"));
 		this.texturedModel = new TexturedModel(this.rawModel, texture);
+		
+		this.entity = new Entity(this.texturedModel, new Vector3f(0, 0, -1), 3, 0, 0, 1);
+		
+		
 		
 		this.run();
 	}
@@ -59,14 +147,17 @@ public class Main {
 	}
 	
 	public void tick() {
-		
+		this.camera.move();
+		//this.entity.increasePosition(0, 0, -0.1f);
+		this.entity.increaseRotation(1, 1, 1);
 	}
 	
 	public void render() {
 		this.renderer.prepare();
 
 		this.staticShader.start();
-		this.renderer.render(this.texturedModel);
+		this.staticShader.loadViewMatrix(this.camera);
+		this.renderer.render(this.entity, this.staticShader);
 		this.staticShader.stop();
 		
 		DisplayManager.update();
