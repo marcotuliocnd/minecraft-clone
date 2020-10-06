@@ -2,7 +2,10 @@ package com.minecraft.core;
 
 import org.lwjgl.opengl.Display;
 
+import com.minecraft.models.RawModel;
+import com.minecraft.models.TexturedModel;
 import com.minecraft.shaders.StaticShader;
+import com.minecraft.textures.ModelTexture;
 
 public class Main {
 	
@@ -12,6 +15,7 @@ public class Main {
 	private Renderer renderer;
 	private RawModel rawModel;
 	private StaticShader staticShader;
+	private TexturedModel texturedModel;
 	
 	public Main() {
 		DisplayManager.create();
@@ -34,7 +38,17 @@ public class Main {
 				3, 1, 2	 // bottom triangle (vertice 3, vertice 1, vertice 2)
 		};
 		
-		this.rawModel = loader.loadToVao(vertices, indices);
+		float[] textureCoordinates = {
+				0,0,				//Vertice 0
+				0,1,				//Vertice 1
+				1,1,				//Vertice 2
+				1,0 				//Vertice 3
+		};
+		
+		
+		this.rawModel = loader.loadToVao(vertices, indices, textureCoordinates);
+		ModelTexture texture = new ModelTexture(loader.loadTexture("grass.png"));
+		this.texturedModel = new TexturedModel(this.rawModel, texture);
 		
 		this.run();
 	}
@@ -52,7 +66,7 @@ public class Main {
 		this.renderer.prepare();
 
 		this.staticShader.start();
-		this.renderer.render(rawModel);
+		this.renderer.render(this.texturedModel);
 		this.staticShader.stop();
 		
 		DisplayManager.update();

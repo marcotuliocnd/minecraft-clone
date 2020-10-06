@@ -1,4 +1,4 @@
-package com.minecraft.core;
+package com.minecraft.models;
 
 public class RawModel {
 	
