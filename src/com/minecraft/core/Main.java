@@ -1,5 +1,8 @@
 package com.minecraft.core;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -9,6 +12,7 @@ import com.minecraft.models.RawModel;
 import com.minecraft.models.TexturedModel;
 import com.minecraft.shaders.StaticShader;
 import com.minecraft.textures.ModelTexture;
+import com.minecraft.utils.OpenSimplexNoise;
 
 public class Main {
 	
@@ -19,8 +23,12 @@ public class Main {
 	private RawModel rawModel;
 	private StaticShader staticShader;
 	private TexturedModel texturedModel;
-	private Entity entity;
+	private List<Entity> entity = new ArrayList<Entity>();
 	private Camera camera = new Camera();
+	
+	private static final int WIDTH = 64;
+	private static final int HEIGHT = 64;
+	private static final double FEATURE_SIZE = 24;
 	
 	public Main() {
 		DisplayManager.create();
@@ -31,26 +39,10 @@ public class Main {
 	}
 	
 	public void start() {
-		/*
-		float[] vertices = {
-				-0.5f, 0.5f, 0f,	// vertice 0
-				-0.5f, -0.5f, 0f,	// vertice 1
-				0.5f, -0.5f, 0f,	// vertice 2
-				0.5f, 0.5f, 0f		// vertice 3
-		};
 		
-		int[] indices = {
-				0, 1, 3, // top triangle (vertice 0, vertice 1, vertice 3)
-				3, 1, 2	 // bottom triangle (vertice 3, vertice 1, vertice 2)
-		};
+		OpenSimplexNoise noise = new OpenSimplexNoise();
 		
-		float[] textureCoordinates = {
-				0,0,				//Vertice 0
-				0,1,				//Vertice 1
-				1,1,				//Vertice 2
-				1,0 				//Vertice 3
-		};
-		*/
+		
 		float[] vertices = {			
 				-0.5f,0.5f,-0.5f,	
 				-0.5f,-0.5f,-0.5f,	
@@ -86,30 +78,35 @@ public class Main {
 		
 		float[] textureCoordinates = {
 				
-				0,0,
-				0,1,
-				1,1,
-				1,0,			
-				0,0,
-				0,1,
-				1,1,
-				1,0,			
-				0,0,
-				0,1,
-				1,1,
-				1,0,
-				0,0,
-				0,1,
-				1,1,
-				1,0,
-				0,0,
-				0,1,
-				1,1,
-				1,0,
-				0,0,
-				0,1,
-				1,1,
-				1,0
+				0	,	0,
+				0	,	0.5f,
+				0.5f,	0.5f,
+				0.5f,	0,	
+				
+				0	,	0,
+				0	,	0.5f,
+				0.5f,	0.5f,
+				0.5f,	0,
+			
+				0	,	0,
+				0	,	0.5f,
+				0.5f,	0.5f,
+				0.5f,	0,
+				
+				0	,	0,
+				0	,	0.5f,
+				0.5f,	0.5f,
+				0.5f,	0,
+				
+				0.5f,	0,	//Parte de cima
+				1	,	0,
+				1	,	0.5f,
+				0.5f,	0.5f,
+				
+				0.5f,	0.5f,	//Parte de baixo
+				1	,	0.5f,
+				1	,	1,
+				0.5f,	1
 
 				
 		};
@@ -130,13 +127,22 @@ public class Main {
 
 		};
 		
+		
 		this.rawModel = loader.loadToVao(vertices, indices, textureCoordinates);
 		ModelTexture texture = new ModelTexture(loader.loadTexture("grass.png"));
 		this.texturedModel = new TexturedModel(this.rawModel, texture);
 		
-		this.entity = new Entity(this.texturedModel, new Vector3f(0, 0, -1), 3, 0, 0, 1);
-		
-		
+		for (int y = 0; y < HEIGHT; y++) {
+			for (int x = 0; x < WIDTH; x++) {
+				float value = (float) noise.eval(x / FEATURE_SIZE, y / FEATURE_SIZE, 0.0);
+				
+				value += 1;
+				value *= -10;
+				value = (float) Math.round(value);
+				
+				this.entity.add(new Entity(this.texturedModel, new Vector3f(x, value - 5, y), 3, 0, 0, 1));
+			}
+		}
 		
 		this.run();
 	}
@@ -148,8 +154,9 @@ public class Main {
 	
 	public void tick() {
 		this.camera.move();
-		//this.entity.increasePosition(0, 0, -0.1f);
-		this.entity.increaseRotation(1, 1, 1);
+		for(Entity entity:this.entity) {
+			//entity.increaseRotation(1, 0, 0);
+		}
 	}
 	
 	public void render() {
@@ -157,7 +164,9 @@ public class Main {
 
 		this.staticShader.start();
 		this.staticShader.loadViewMatrix(this.camera);
-		this.renderer.render(this.entity, this.staticShader);
+		for(Entity entity:this.entity) {
+			this.renderer.render(entity, this.staticShader);
+		}
 		this.staticShader.stop();
 		
 		DisplayManager.update();
@@ -181,6 +190,7 @@ public class Main {
 			}
 			
 			if(System.currentTimeMillis() - timer >= 1000){
+				System.out.println("FPS: " + framesPerSecond);
 				framesPerSecond = 0;
 				timer += 1000;
 			}
